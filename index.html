@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+      crossorigin="anonymous"
+    />
+    <style>
+      /* Set background color to light grey with transition */
+      body {
+        font-family: serif, sans-serif; /* Fallback for unsupported fonts */
+        margin: 0;
+        padding: 0;
+        background:cadetblue;
+        transition: background-color 0.5s ease;
+      }
+
+      nav {
+        border: 2px solid #333;
+        font-size: 1rem; /* Use rem for better responsiveness */
+        width: 100%;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 0.5rem 1rem; /* Add padding for better spacing */
+        transition: background-color 0.3s ease; /* Add transition for background color change */
+        background-color: #333;
+      }
+
+      .navbar-brand {
+        margin-top: 15px;
+        font-size: 2rem; /* Use rem for better responsiveness */
+        text-align: center;
+        color: white;
+        line-height: 1.5; /* Improve spacing visually */
+        transition: color 0.3s ease; /* Existing transition for color change */
+        pointer-events: none;
+      }
+
+      aside {
+        width: 200px;
+        background-color: #333;
+        color: white;
+        padding: 20px;
+        box-sizing: border-box;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        float: left;
+      }
+
+      body.aside-visible {
+        margin-left: 200px; /* Adjust the margin when aside is visible */
+      }
+
+      #toggle-btn {
+        font-size: 20px;
+        cursor: pointer;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 2;
+        color: black;
+      }
+
+      aside.hidden {
+        width: 0;
+        overflow: hidden;
+      }
+
+      .navigation {
+        margin-left: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .na {
+        color: white;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none; /* Remove default underline */
+        padding: 0.5rem 1rem; /* Add padding for better spacing */
+        transition: color 0.3s ease; /* Existing transition for color change */
+      }
+
+      .nav-link:hover {
+        color: white;
+      }
+
+      .heading {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%; /* Make heading cover full width */
+      }
+
+      h2 {
+        background: #333;
+        padding: 1rem; /* Add padding for better readability */
+        margin: 0; /* Remove default margin */
+        width: 100%; /* Make heading cover full width */
+        transition: background-color 0.3s ease; /* Add transition for background color change */
+        color: white;
+      }
+
+      h4 {
+        background: linear-gradient(177.9deg, #fff2fe 5.3%, #fff2fe 5.3%, #bc84ad 94.7%);
+        padding: 1rem; /* Add padding for better readability */
+        margin: 0; /* Remove default margin */
+        width: 100%; /* Make heading cover full width */
+        transition: background-color 0.3s ease; /* Add transition for background color change */
+        color: #333;
+      }
+
+      /* Styling for the container */
+      .container {
+        background-color: rgba(128, 128, 128, 0.3); /* Translucent white background */
+        padding: 20px; 
+      }
+
+      /* Add clearfix class to clear float */
+      .clearfix::after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+
+      /* Align the button to the right */
+      .float-end {
+        float: right;
+      }
+      .nav-link.active {
+        color: black !important;
+        background-color:grey;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <header>
+        <div class="container-fluid">
+  
+          <h2 class="navbar-brand" >Inventory Management System</h2>
+          
+        
+        </div>
+        <aside>
+      <nav>
+        <div class="navigation">
+        <a class="nav-link na" aria-current="page" href="#">Home</a>
+        <a class="nav-link na" href="#">Register</a>
+        <a class="nav-link na" href="#">Login</a>
+        <a class="nav-link na" href="#">More Info</a>
+      </div>
+      </nav>
+    </aside>
+    <button id="toggle-btn" onclick="toggleSidebar()">&#9776;</button>
+    </header>
+    </header>
+
+    <main>
+      <div class="container">
+        <div class="heading">
+          <h2 class="clearfix">
+            Inventory Manager
+            <button type="button" onclick="clearAll()" class="btn btn-danger float-end">
+              Clear All
+            </button>
+          </h2>
+        </div>
+        <div class="tabs">
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="home-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#home-tab-pane"
+                type="button"
+                role="tab"
+                aria-controls="home-tab-pane"
+                aria-selected="true"
+              >
+                Current Inventory
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="profile-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#profile-tab-pane"
+                type="button"
+                role="tab"
+                aria-controls="profile-tab-pane"
+                aria-selected="false"
+              >
+                Incoming Purchase
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="contact-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#contact-tab-pane"
+                type="button"
+                role="tab"
+                aria-controls="contact-tab-pane"
+                aria-selected="false"
+              >
+                Outgoing Orders
+              </button>
+            </li>
+          </ul>
+          <div class="tab-content" id="myTabContent">
+            <div
+              class="tab-pane fade show active"
+              id="home-tab-pane"
+              role="tabpanel"
+              aria-labelledby="home-tab"
+              tabindex="0"
+            >
+              <div class="heading">
+                <h4>Current Inventory</h4>
+                <button
+                  type="button"
+                  onclick="clearCurrentInventory()"
+                  class="btn btn-danger"
+                >
+                  Clear Inventory
+                </button>
+              </div>
+              <div class="add-item">
+                <form class="form">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      Product Name:
+                      <input
+                        id="current_order_product_name"
+                        class="form-control"
+                        type="text"
+                        required
+                      />
+                    </label>
+                    <label class="form-label">
+                      Product Brand:
+                      <input
+                        id="current_order_product_brand"
+                        class="form-control"
+                        type="text"
+                        required
+                      />
+                    </label>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">
+                      Quantity:
+                      <input
+                        id="current_order_product_quantity"
+                        class="form-control"
+                        type="number"
+                        required
+                      />
+                    </label>
+                    <label class="form-label">
+                      Product Price:
+                      <input
+                        id="current_order_product_price"
+                        class="form-control"
+                        type="number"
+                        required
+                      />
+                    </label>
+                  </div>
+                  <div class="mb-3">
+                    <button
+                      class="btn btn-success"
+                      onclick="addCurrentInventory()"
+                      type="button"
+                    >
+                      Add
+                    </button>
+                    <button class="btn btn-danger" type="reset">Reset</button>
+                  </div>
+                </form>
+              </div>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">S.No</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Brand</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price</th>
+                  </tr>
+                </thead>
+                <tbody id="current_inventory_list">
+                </tbody>
+              </table>
+            </div>
+            <div
+              class="tab-pane fade"
+              id="profile-tab-pane"
+              role="tabpanel"
+              aria-labelledby="profile-tab"
+              tabindex="0"
+            >
+              <div class="heading">
+                <h4>Incoming Purchase</h4>
+                <button
+                  onclick="clearIncomingOrder()"
+                  type="button"
+                  class="btn btn-danger"
+                >
+                  Clear Incoming
+                </button>
+              </div>
+              <div class="add-item">
+                <form class="form">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      Product Name:
+                      <input
+                        id="incoming_order_product_name"
+                        class="form-control"
+                        type="text"
+                        required
+                      />
+                    </label>
+                    <label class="form-label">
+                      Product Brand:
+                      <input
+                        id="incoming_order_product_brand"
+                        class="form-control"
+                        type="text"
+                        required
+                      />
+                    </label>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">
+                      Quantity:
+                      <input
+                        id="incoming_order_product_quantity"
+                        class="form-control"
+                        type="number"
+                        required
+                      />
+                    </label>
+                    <label class="form-label">
+                      Product Price:
+                      <input
+                        id="incoming_order_product_price"
+                        class="form-control"
+                        type="number"
+                        required
+                      />
+                    </label>
+                  </div>
+                  <div class="mb-3">
+                    <button
+                      class="btn btn-success"
+                      onclick="addIncomingOrder()"
+                      type="button"
+                    >
+                      Add
+                    </button>
+                    <button class="btn btn-danger" type="reset">Reset</button>
+                  </div>
+                </form>
+              </div>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">S.No</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Brand</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price</th>
+                  </tr>
+                </thead>
+                <tbody id="incoming_inventory_list">
+                </tbody>
+              </table>
+            </div>
+            <div
+              class="tab-pane fade"
+              id="contact-tab-pane"
+              role="tabpanel"
+              aria-labelledby="contact-tab"
+              tabindex="0"
+            >
+              <div class="heading">
+                <h4>Outgoing Orders</h4>
+                <button
+                  type="button"
+                  onclick="clearOutgoingOrder()"
+                  class="btn btn-danger"
+                >
+                  Clear Outgoing
+                </button>
+              </div>
+              <div class="add-item">
+                <form class="form">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      Product Name:
+                      <input
+                        id="outgoing_order_product_name"
+                        class="form-control"
+                        type="text"
+                        required
+                      />
+                    </label>
+                    <label class="form-label">
+                      Product Brand:
+                      <input
+                        id="outgoing_order_product_brand"
+                        class="form-control"
+                        type="text"
+                        required
+                      />
+                    </label>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">
+                      Quantity:
+                      <input
+                        id="outgoing_order_product_quantity"
+                        class="form-control"
+                        type="number"
+                        required
+                      />
+                    </label>
+                    <label class="form-label">
+                      Product Price:
+                      <input
+                        id="outgoing_order_product_price"
+                        class="form-control"
+                        type="number"
+                        required
+                      />
+                    </label>
+                  </div>
+                  <div class="mb-3">
+                    <button
+                      class="btn btn-success"
+                      onclick="addOutgoingOrder()"
+                      type="button"
+                    >
+                      Add
+                    </button>
+                    <button class="btn btn-danger" type="reset">Reset</button>
+                  </div>
+                </form>
+              </div>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">S.No</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Brand</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price</th>
+                  </tr>
+                </thead>
+                <tbody id="outgoing_inventory_list">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+       // Function to check if a string is empty
+function is_empty(string) {
+    return string.trim() === '';
+}
+
+// Function to get the index of the last child in a table body
+function getIndex(tbody) {
+    return tbody.children.length || 0;
+}
+
+// Function to clear all inventory lists
+function clearAll() {
+    clearCurrentInventory();
+    clearIncomingOrder();
+    clearOutgoingOrder();
+}
+
+// Function to clear the current inventory list
+function clearCurrentInventory() {
+    document.querySelector("#current_inventory_list").innerHTML = "";
+}
+
+// Function to clear the incoming order list
+function clearIncomingOrder() {
+    document.querySelector("#incoming_inventory_list").innerHTML = "";
+}
+
+// Function to clear the outgoing order list
+function clearOutgoingOrder() {
+    document.querySelector("#outgoing_inventory_list").innerHTML = "";
+}
+
+// Function to add an item to the current inventory list
+function addCurrentInventory() {
+    let productName = document.querySelector("#current_order_product_name").value;
+    let productBrand = document.querySelector("#current_order_product_brand").value;
+    let productPrice = document.querySelector("#current_order_product_price").value;
+    let productQuantity = document.querySelector("#current_order_product_quantity").value;
+
+    // Check if any field is empty
+    if (is_empty(productName) || is_empty(productBrand) || is_empty(productPrice) || is_empty(productQuantity)) {
+        alert("Please fill out all fields");
+        return;
+    }
+
+    let tbody = document.querySelector("#current_inventory_list");
+    let newIndex = getIndex(tbody) + 1;
+    let tr = `<tr>
+        <th scope='row'>${getIndex(tbody) + 1}</th>
+        <td>${productName}</td>
+        <td>${productBrand}</td>
+        <td>${productQuantity}</td>
+        <td>Rs ${productPrice}</td>
+        <td><button class="btn btn-danger" onclick="removeItem(this)">Remove</button></td>
+    </tr>`;
+
+    tbody.innerHTML += tr;
+    updateSerialNumbers(tbody);
+
+    // Set text color to white for the added item
+    setTextColorToWhite(tbody);
+}
+
+// Function to add an item to the incoming order list
+function addIncomingOrder() {
+    let productName = document.querySelector("#incoming_order_product_name").value;
+    let productBrand = document.querySelector("#incoming_order_product_brand").value;
+    let productPrice = document.querySelector("#incoming_order_product_price").value;
+    let productQuantity = document.querySelector("#incoming_order_product_quantity").value;
+
+    // Check if any field is empty
+    if (is_empty(productName) || is_empty(productBrand) || is_empty(productPrice) || is_empty(productQuantity)) {
+        alert("Please fill out all fields");
+        return;
+    }
+
+    let tbody = document.querySelector("#incoming_inventory_list");
+    let newIndex = getIndex(tbody) + 1;
+    let tr = `<tr>
+        <th scope='row'>${getIndex(tbody) + 1}</th>
+        <td>${productName}</td>
+        <td>${productBrand}</td>
+        <td>${productQuantity}</td>
+        <td>Rs ${productPrice}</td>
+        <td><button class="btn btn-danger" onclick="removeItem(this)">Remove</button></td>
+    </tr>`;
+
+    tbody.innerHTML += tr;
+    updateSerialNumbers(tbody);
+
+    // Set text color to white for the added item
+    setTextColorToWhite(tbody);
+}
+
+// Function to add an item to the outgoing order list
+function addOutgoingOrder() {
+    let productName = document.querySelector("#outgoing_order_product_name").value;
+    let productBrand = document.querySelector("#outgoing_order_product_brand").value;
+    let productPrice = document.querySelector("#outgoing_order_product_price").value;
+    let productQuantity = document.querySelector("#outgoing_order_product_quantity").value;
+
+    // Check if any field is empty
+    if (is_empty(productName) || is_empty(productBrand) || is_empty(productPrice) || is_empty(productQuantity)) {
+        alert("Please fill out all fields");
+        return;
+    }
+
+    let tbody = document.querySelector("#outgoing_inventory_list");
+    let newIndex = getIndex(tbody) + 1;
+    let tr = `<tr>
+        <th scope='row'>${getIndex(tbody) + 1}</th>
+        <td>${productName}</td>
+        <td>${productBrand}</td>
+        <td>${productQuantity}</td>
+        <td>Rs ${productPrice}</td>
+        <td><button class="btn btn-danger" onclick="removeItem(this)">Remove</button></td>
+    </tr>`;
+
+    tbody.innerHTML += tr;
+    updateSerialNumbers(tbody);
+
+    // Set text color to white for the added item
+    setTextColorToWhite(tbody);
+}
+
+// Function to remove an item from the inventory list
+function removeItem(button) {
+    let row = button.parentNode.parentNode;
+    let tableBody = row.parentNode;
+    tableBody.removeChild(row);
+    updateSerialNumbers(tableBody);
+
+    // Set text color to white after removing the item
+    setTextColorToWhite(tableBody);
+}
+
+// Function to update serial numbers in a table body
+function updateSerialNumbers(tableBody) {
+    let rows = tableBody.querySelectorAll("tr");
+
+    for (let i = 0; i < rows.length; i++) {
+        let cells = rows[i].querySelectorAll("th, td:first-child");
+        cells[0].textContent = i + 1;
+    }
+
+    // Set text color to white after updating serial numbers
+    setTextColorToWhite(tableBody);
+}
+
+// Function to set text color to white for specified element and its descendants
+function setTextColorToWhite(element) {
+    if (!element) return;
+
+    // Set the text color of the element to white
+    element.style.color = '#ffffff';
+
+    // Set the text color of all descendants recursively
+    let descendants = element.querySelectorAll('*');
+    descendants.forEach(descendant => {
+        descendant.style.color = '#ffffff';
+    });
+}
+
+// Toggle sidebar visibility
+function toggleSidebar() {
+    const sidebar = document.querySelector('aside');
+    const body = document.body;
+
+    // Toggle the 'aside-visible' class on body
+    body.classList.toggle('aside-visible');
+
+    // Toggle the 'transform' property on sidebar
+    sidebar.style.transform = body.classList.contains('aside-visible') ? 'translateX(0)' : 'translateX(-100%)';
+}
+
+// Close sidebar when clicking outside
+document.addEventListener('click', function(event) {
+    const sidebar = document.querySelector('aside');
+    const toggleBtn = document.getElementById('toggle-btn');
+    if (event.target !== sidebar && event.target !== toggleBtn && !sidebar.contains(event.target)) {
+        sidebar.style.transform = 'translateX(-100%)';
+    }
+});
+
+// Call the function to set initial text color to white for all elements within the body
+setTextColorToWhite(document.body);
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all input elements
+    let inputFields = document.querySelectorAll('input');
+
+    // Loop through each input element
+    inputFields.forEach(input => {
+        // Set the text color to black
+        input.style.color = 'black';
+    });
+});
+function displayHeading(text, containerId) {
+    // Create a new heading element (e.g., <h2>)
+    let heading = document.createElement('h2');
+  
+    // Set the text content of the heading
+    heading.textContent = text;
+  
+    // Set the background color to a soft pink shade
+    heading.style.backgroundColor = '#FFC0CB'; // Soft pink color
+  
+    // Set text color to white to ensure visibility
+    heading.style.color = 'white'; 
+  
+    // Add padding and margin for better visual appearance
+    heading.style.padding = '10px';
+    heading.style.margin = '0';
+  
+    // Append the heading to the specified container (identified by containerId)
+    let container = document.querySelector('#' + containerId);
+    container.innerHTML = ''; // Clear existing content
+    container.appendChild(heading);
+  }
+  
+  // Example usage:
+  // Assuming you have a button that triggers the display of the heading
+  document.addEventListener('DOMContentLoaded', function() {
+    let button = document.querySelector('#toggle-btn');
+    button.addEventListener('click', function() {
+        toggleSidebar();
+    });
+});
+
+  async function addInventoryItem() {
+            // Get form input values
+            let name = document.querySelector("#current_order_product_name").value;
+            let brand = document.querySelector("#current_order_product_brand").value;
+            let quantity = document.querySelector("#current_order_product_quantity").value;
+            let price = document.querySelector("#current_order_product_price").value;
+
+            // Create payload object
+            let payload = {
+                name: name,
+                brand: brand,
+                quantity: parseInt(quantity),
+                price: parseFloat(price)
+            };
+
+            try {
+                // Make POST request to backend API
+                const response = await fetch('/api/inventory', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add inventory item');
+                }
+
+                // Clear form fields after successful submission
+                document.querySelector("#current_order_product_name").value = "";
+                document.querySelector("#current_order_product_brand").value = "";
+                document.querySelector("#current_order_product_quantity").value = "";
+                document.querySelector("#current_order_product_price").value = "";
+
+                // Display success message or perform any other action
+                console.log('Inventory item added successfully');
+            } catch (error) {
+                console.error('Error:', error.message);
+                // Handle error, display error message, etc.
+            }
+        }
+
+        // Add event listener to form submit button
+        document.querySelector("#addInventoryForm").addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
+            addInventoryItem(); // Call function to add inventory item
+        });
+
+    </script>
+  </body>
+</html>
